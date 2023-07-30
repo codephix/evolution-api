@@ -146,6 +146,24 @@ export const textMessageSchema: JSONSchema7 = {
   required: ['textMessage', 'number'],
 };
 
+export const linkMessageSchema: JSONSchema7 = {
+  $id: v4(),
+  type: 'object',
+  properties: {
+    number: { ...numberDefinition },
+    options: { ...optionsSchema },
+    extendedTextMessage: {
+      type: 'object',
+      properties: {
+        text: { type: 'string' },
+      },
+      required: ['text'],
+      ...isNotEmpty('text'),
+    },
+  },
+  required: ['extendedTextMessage', 'number'],
+};
+
 export const pollMessageSchema: JSONSchema7 = {
   $id: v4(),
   type: 'object',

@@ -13,6 +13,7 @@ import {
   statusMessageSchema,
   stickerMessageSchema,
   textMessageSchema,
+  linkMessageSchema,
 } from '../../validate/validate.schema';
 import { RouterBroker } from '../abstract/abstract.router';
 import {
@@ -27,6 +28,7 @@ import {
   SendStatusDto,
   SendStickerDto,
   SendTextDto,
+  SendLinkDto,
 } from '../dto/sendMessage.dto';
 import { sendMessageController } from '../whatsapp.module';
 import { HttpStatus } from './index.router';
@@ -51,6 +53,23 @@ export class MessageRouter extends RouterBroker {
           execute: (instance, data) => sendMessageController.sendText(instance, data),
         });
 
+        return res.status(HttpStatus.CREATED).json(response);
+      })
+      .post(this.routerPath('sendLink'), ...guards, async (req, res) => {
+        logger.verbose('request received in sendLink');
+        logger.verbose('request body: ');
+        logger.verbose(req.body);
+
+        logger.verbose('request query: ');
+        logger.verbose(req.query);
+
+        const response = await this.dataValidate<SendLinkDto>({
+          request: req,
+          schema: linkMessageSchema,
+          ClassRef: SendLinkDto,
+          execute: (instance, data) => sendMessageController.sendLink(instance, data),
+        });
+        
         return res.status(HttpStatus.CREATED).json(response);
       })
       .post(this.routerPath('sendMedia'), ...guards, async (req, res) => {

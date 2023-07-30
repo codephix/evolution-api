@@ -15,6 +15,7 @@ import {
   SendStatusDto,
   SendStickerDto,
   SendTextDto,
+  SendLinkDto,
 } from '../dto/sendMessage.dto';
 import { WAMonitoringService } from '../services/monitor.service';
 
@@ -26,6 +27,11 @@ export class SendMessageController {
   public async sendText({ instanceName }: InstanceDto, data: SendTextDto) {
     logger.verbose('requested sendText from ' + instanceName + ' instance');
     return await this.waMonitor.waInstances[instanceName].textMessage(data);
+  }
+
+  public async sendLink({ instanceName }: InstanceDto, data: SendLinkDto) {
+    logger.verbose('requested sendText from ' + instanceName + ' instance');
+    return await this.waMonitor.waInstances[instanceName].linkMessage(data);
   }
 
   public async sendMedia({ instanceName }: InstanceDto, data: SendMediaDto) {

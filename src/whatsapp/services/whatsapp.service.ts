@@ -99,6 +99,7 @@ import {
   SendButtonDto,
   SendContactDto,
   SendListDto,
+  SendLinkDto,
   SendLocationDto,
   SendMediaDto,
   SendPollDto,
@@ -1674,6 +1675,7 @@ export class WAStartupService {
           !message['audio'] &&
           !message['poll'] &&
           !message['sticker'] &&
+          !message['link'] &&
           !message['conversation'] &&
           sender !== 'status@broadcast'
         ) {
@@ -1704,6 +1706,26 @@ export class WAStartupService {
             } as unknown as AnyMessageContent,
             option as unknown as MiscMessageGenerationOptions,
           );
+        }
+
+
+        if (message['link']) {
+          this.logger.verbose('Sending link');
+
+          return await this.client.sendMessage(
+            sender,
+            {
+              forward: {
+                key: { remoteJid: this.instance.wuid, fromMe: true },
+                message: {
+                  extendedTextMessage: message
+                }
+              },
+              mentions,
+            },
+            option as unknown as MiscMessageGenerationOptions,
+          );
+
         }
 
         if (sender === 'status@broadcast') {
@@ -1780,6 +1802,55 @@ export class WAStartupService {
       },
       data?.options,
     );
+  }
+
+  // Send Link Message Controller
+  public async linkMessage(data: SendLinkDto) {
+    this.logger.verbose('Sending text message');
+
+    var image = '';
+
+    if(data.extendedTextMessage.jpegThumbnail){
+      await this.imageToBase64(data.extendedTextMessage.jpegThumbnail)
+        .then((base64Data) => {
+            image = base64Data;
+        })
+        .catch((error) => {
+            // Lidar com erros, se houver
+            console.error('Erro:', error);
+        });
+    }
+
+    return await this.sendMessageWithTyping(
+      data.number,
+      {
+        link: data.extendedTextMessage.text,
+        text: data.extendedTextMessage.text,
+        description:  data.extendedTextMessage.description,
+        title:  data.extendedTextMessage.title,
+        previewType:  data.extendedTextMessage.previewType??'NONE',
+        jpegThumbnail:  image,
+      },
+      data?.options,
+    );
+  }
+
+    // Função para ler imagem do link e converter para base64
+  public async imageToBase64(imageUrl) {
+      try {
+          // Faz uma solicitação HTTP para obter a imagem
+          const response = await axios.get(imageUrl, {
+              responseType: 'arraybuffer' // Define o tipo de resposta como arraybuffer
+          });
+      
+          // Converte o buffer da imagem para base64
+          const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
+      
+          return imageBase64;
+      } catch (error) {
+      //console.error('Erro ao ler a imagem:', error.message);
+          return '';
+      }
   }
 
   public async pollMessage(data: SendPollDto) {

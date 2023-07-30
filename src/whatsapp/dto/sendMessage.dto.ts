@@ -30,6 +30,14 @@ class TextMessage {
   text: string;
 }
 
+class LinkMessage {
+  text: string;
+  description: string;
+  title: string;
+  previewType: string;
+  jpegThumbnail: string;
+}
+
 export class StatusMessage {
   type: string;
   content: string;
@@ -48,6 +56,10 @@ class PollMessage {
 }
 export class SendTextDto extends Metadata {
   textMessage: TextMessage;
+}
+
+export class SendLinkDto extends Metadata {
+  extendedTextMessage: LinkMessage;
 }
 
 export class SendStatusDto extends Metadata {
